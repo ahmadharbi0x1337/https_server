@@ -1,17 +1,19 @@
+#include <arpa/inet.h>
+#include <ctype.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <unistd.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-#include <pthread.h>
+#include <unistd.h>
 
 // How Many Client Can Wait in Line ?
 #define BACKLOG 5
-
+#define STATIC_ROOT "../../static"
 // Logging Macros
 #define LOG_INFO(fmt, ...) fprintf(stdout, "[INFO] " fmt "\n", ##__VA_ARGS__)
 #define LOG_ERR(fmt, ...)  fprintf(stderr, "[ERROR] " fmt "\n", ##__VA_ARGS__)
@@ -173,30 +175,68 @@ void handle_http_request(int client_fd)
     }
 
     LOG_INFO("Received HTTPS Request:\n%s", buffer);
-
-    // Simple Parsing 
-    if (strncmp(buffer, "GET / ", 6) == 0)
+    
+    // Method and Path Buffers
+    char method[8], path[1024];
+    
+    // Method Not Allowed if any method is requested other than GET
+    sscanf(buffer,"%s %s", method, path); // Basic Parsing
+    if (strcmp(method, "GET") != 0)
     {
-        const char* http_response =
-        "HTTP/1.1 200 OK\r\n"
-        "Content-Type: text/plain\r\n"
-        "Content-Length: 14\r\n"
-        "Connection: close\r\n"
-        "\r\n"
-        "Hello, Browser!\n";
-        send(client_fd, http_response, strlen(http_response), 0);
+        const char *not_allowed = 
+        "HTTP/1.1 405 Method Not Allowed\r\n"
+        "Content-Length: 0\r\n"
+        "Connection: 0\r\n";
+        send(client_fd, not_allowed, sizeof(not_allowed), 0);
+        return;
     }
-    else
+
+    if (strcmp(path, "/") == 0)
+    {
+        strcpy(path, "/index.html");
+    }
+
+    char full_path[2048];
+    // Creating the full path, writing path and constant filesystem routing using snprintf
+    snprintf(full_path,sizeof(full_path), "%s%s", STATIC_ROOT, path);
+
+    // Opening The File index.html
+    int fd = open(full_path, O_RDONLY);
+    // Checking
+    if (fd == -1)
     {
         const char* not_found = 
-        "HTTP/1.1 404 Not Found\r\n"
-        "Content-Type: text/plain\r\n"
+        "HTTP/1.1 404 File Not Found\r\n"
         "Content-Length: 13\r\n"
-        "Connection: Close\r\n"
-        "\r\n"
+        "Content-Type: text/plain\r\n"
+        "Connection: close\r\n"
         "404 Not Found\n";
         send(client_fd, not_found, strlen(not_found), 0);
+        return;
     }
+
+    struct stat st;
+    fstat(fd, &st);
+    int file_size = st.st_size;
+
+    char header[256];
+    snprintf(header, sizeof(header), 
+    "HTTP/1.1 200 OK\r\n"
+    "Content-Length: %d\r\n"
+    "Content-Type: text/html\r\n"
+    "Connection: close\r\n\r\n", file_size
+    );
+    send(client_fd, header, strlen(header), 0);
+
+    char file_buffer[1024];
+    int bytes;
+    // Sending the content of index.html in chunks
+    while ((bytes = read(fd, file_buffer, sizeof(file_buffer))) > 0)
+    {
+        send(client_fd, file_buffer, bytes, 0);
+    }
+    close(fd);
+
 }
 void run_server(int server_port)
 {
