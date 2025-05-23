@@ -19,9 +19,9 @@ The codebase is intended to evolve gradually into a full-fledged HTTP server tha
 - ✅ **Listening and accepting client connections**
 - ✅ **Basic logging macros for info and error tracking**
 - ✅ **Raw TCP echo server (responds to basic messages)**
-- ✅ **Basic HTTP GET request handling**
-  - Responds to `GET /` with a plain text message
-  - Sends `404 Not Found` for unknown paths
+  ✅ **Accepting connections**
+  ✅ **Parsing basic HTTP requests**
+  ✅ **Serving static files from a directory**
 - ✅ **Graceful error handling and socket cleanup**
 
 ---
@@ -31,7 +31,6 @@ The codebase is intended to evolve gradually into a full-fledged HTTP server tha
 ### 🔜 Next Milestone: **Serving Static Files**
 
 Planned enhancements:
-- 📄 Serve static files (e.g., HTML, CSS, JS) from a predefined `public/` directory
 - 🧠 Basic MIME type detection
 - 📦 Modular structure for handling HTTP routes and file resolution
 - ⛔ Proper error responses for missing or restricted files
