@@ -19,26 +19,29 @@ The codebase is intended to evolve gradually into a full-fledged HTTP server tha
 - ✅ **Listening and accepting client connections**
 - ✅ **Basic logging macros for info and error tracking**
 - ✅ **Raw TCP echo server (responds to basic messages)**
-  ✅ **Accepting connections**
-  ✅ **Parsing basic HTTP requests**
-  ✅ **Serving static files from a directory**
+- ✅ **Accepting connections**
+- ✅ **Parsing basic HTTP requests**
+- ✅ **Serving static files from a directory**
 - ✅ **Graceful error handling and socket cleanup**
+- ✅ **Basic MIME type detection**
 
 ---
 
 ## 🚧 Upcoming Features
 
+
+### 🔜 Current Issue: **FileSystemRoutesConfiguration**
 ### 🔜 Next Milestone: **Serving Static Files**
 
 Planned enhancements:
-- 🧠 Basic MIME type detection
-- 📦 Modular structure for handling HTTP routes and file resolution
+- 📦 More Modular structure for handling HTTP routes and file resolution
 - ⛔ Proper error responses for missing or restricted files
 
 ---
 
 ## 🛠️ Build & Run
+### Install Make First, if You Havent Already!
 
 ```bash
-gcc -o my_http_server server.c -lpthread
-./my_http_server <PORT>
+$make
+$./http_server <PORT>
