@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
-SRCS = main.c server.c connection.c mime_types.c
+CFLAGS = -Wall -Wextra -g -Iinclude
+SRCS = src/main.c src/server.c src/connection.c src/mime_types.c
 OBJS = $(SRCS:.c=.o)
 TARGET = http-server
 
