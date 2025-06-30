@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     }
 
     LOG_INFO("Starting server on port %d...", port);
-    run_server(port, handle_http_connection);  // Pass handler function here
+    run_server(port, handle_raw_connection);  // Pass handler function here
 
     return EXIT_SUCCESS;
 }
